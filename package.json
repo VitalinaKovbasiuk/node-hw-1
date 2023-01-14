@@ -21,5 +21,8 @@
   "homepage": "https://github.com/VitalinaKovbasiuk/node-hw-1#readme",
   "devDependencies": {
     "nodemon": "^2.0.20"
+  },
+  "dependencies": {
+    "uid": "^2.0.1"
   }
 }
