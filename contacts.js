@@ -1,7 +1,7 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const { uid } = require("uid");
+const { v4 } = require("uuid");
 
 //   Розкоментуйте і запиши значення
   const contactsPath = path.join(__dirname, "db/contacts.json");
@@ -35,19 +35,17 @@ const getContactById = async (contactId) => {
 
 // видалити контакт 
 const removeContact = async (contactId) => {
-  try {
-    const contacts = await listContacts();
-    const idx = contacts.findIndex((item) => item.id === contactId);
-    if (idx === -1) {
-      return null;
-    }
-    const [removeContact] = contacts.splice(idx, 1);
-    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 4));
-    return removeContact;
-  } catch (err) {
-    console.log(err.message);
+   try {
+    const data = await listContacts();
+    const deleteContact = data.filter((contact) => contact.id !== contactId);
+
+    await fs.writeFile(contactsPath, JSON.stringify(deleteContact, null, 2));
+    console.log(`User with id: ${contactId} has been deleted`);
+  } catch (error) {
+    console.log("removeConract", error);
   }
-};
+}
+
 
 // додати контакт 
 const addContact = async (name, email, phone) => {

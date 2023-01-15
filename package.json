@@ -23,6 +23,8 @@
     "nodemon": "^2.0.20"
   },
   "dependencies": {
-    "uid": "^2.0.1"
+    "commander": "^10.0.0",
+    "uid": "^2.0.1",
+    "uuid": "^9.0.0"
   }
 }
