@@ -1,63 +1,70 @@
-const fs = require("fs").promises;
+const fs = require("fs/promises");
 const path = require("path");
 
 const { uid } = require("uid");
 
 //   Розкоментуйте і запиши значення
-  const contactsPath = path.resolve(__dirname, "db/contacts.json");
-console.log("contactsPath", contactsPath);
+  const contactsPath = path.join(__dirname, "db/contacts.json");
 
+  // отримати всі контакти
 
-function listContacts() {
-getAllContacts().then(console.table).catch(console.log);
-}
-
-function getContactById(contactId) {
-   getAllContacts()
-    .then((data) => console.table(data.find(({ id }) => id === contactId)))
-    .catch(console.log);
-}
-
-function removeContact(contactId) {
-  getAllContacts()
-    .then((data) => {
-      const newContacts = data.filter(({ id }) => id !== contactId);
-      const stringifiedContacts = JSON.stringify(newContacts);
-      fs.writeFile(contactsPath, stringifiedContacts, errorFirstCallback);
-    })
-    .catch(console.log);
-}
-
-function addContact(name, email, phone) {
-   const id = uid();
-  const newContact = { id, name, email, phone };
-  getAllContacts()
-    .then((data) => {
-      const newContacts = [...data, newContact];
-      const stringifiedContacts = JSON.stringify(newContacts);
-      fs.writeFile(contactsPath, stringifiedContacts, errorFirstCallback);
-    })
-    .catch(console.log);
-}
-
-
-async function getAllContacts() {
+const listContacts = async () => {
   try {
-    const data = await fs.readFile(contactsPath, { encoding: "utf8" });
-    return JSON.parse(data);
+    const data = await fs.readFile(contactsPath);
+    const contacts = JSON.parse(data);
+    return contacts;
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
   }
-}
+};
 
-function errorFirstCallback(err) {
-  if (err) {
-    throw err;
+// отримати контакт ById
+
+const getContactById = async (contactId) => {
+  try {
+    const contacts = await listContacts();
+    const result = contacts.find((item) => item.id === contactId);
+    if (!result) {
+      return null;
+    }
+    return result;
+  } catch (err) {
+    console.log(err.message);
   }
-}
+};
+
+// видалити контакт 
+const removeContact = async (contactId) => {
+  try {
+    const contacts = await listContacts();
+    const idx = contacts.findIndex((item) => item.id === contactId);
+    if (idx === -1) {
+      return null;
+    }
+    const [removeContact] = contacts.splice(idx, 1);
+    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 4));
+    return removeContact;
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+// додати контакт 
+const addContact = async (name, email, phone) => {
+  try {
+    const contacts = await listContacts();
+    const newContacts = { name, email, phone, id: v4() };
+    contacts.push(newContacts);
+    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 4));
+    return newContacts;
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+
 
 module.exports = {
-  contactsPath,
   listContacts,
   getContactById,
   removeContact,
